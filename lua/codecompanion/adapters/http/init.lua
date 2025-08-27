@@ -185,6 +185,24 @@ end
 function Adapter:map_schema_to_params(settings)
   settings = settings or self:make_from_schema()
 
+  -- Clear out any existing root keys that might have been set on the adapter previously
+  -- and we're going to re-create them based on settings after mapping.
+  do
+    local roots = {}
+    for key, meta in pairs(self.schema or {}) do
+      local mapping = meta and meta.mapping
+      if mapping then
+        local first = mapping:match("^[^.]+")
+        if first then
+          roots[first] = true
+        end
+      end
+    end
+    for root, _ in pairs(roots) do
+      self[root] = nil
+    end
+  end
+
   for k, v in pairs(settings) do
     local mapping = self.schema[k] and self.schema[k].mapping
     if mapping then
