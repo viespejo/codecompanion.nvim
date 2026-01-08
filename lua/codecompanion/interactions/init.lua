@@ -101,10 +101,9 @@ function Interactions:chat()
 
   local function create_chat(input)
     if input then
-      table.insert(messages, {
-        role = config.constants.USER_ROLE,
-        content = input,
-      })
+      if type(config.interactions.chat.opts.resolve_input) == "function" then
+        config.interactions.chat.opts.resolve_input(messages, input)
+      end
     end
 
     if type(opts.pre_hook) == "function" then

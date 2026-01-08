@@ -676,6 +676,20 @@ The user is working on a %s machine. Please respond with system specific command
               ctx.os
             )
         end,
+        ---Function to resolve user input from vim.ui.input into the messages
+        --- @param messages table List of message objects {role: string, content: string}
+        --- @param input string|nil The raw string retrieved from vim.ui.input
+        --- @return nil
+        resolve_input = function(messages, input)
+          if not input or input == "" then
+            return
+          end
+          -- Append the user input as the last message
+          table.insert(messages, {
+            role = constants.USER_ROLE,
+            content = input,
+          })
+        end,
       },
     },
     -- INLINE INTERACTION -----------------------------------------------------
