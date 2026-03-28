@@ -25,27 +25,14 @@ function M.load_from_dir(dir, context)
     return prompts
   end
 
-  -- Scan directory for .md files
-  local handle = vim.uv.fs_scandir(dir)
-  if not handle then
-    return prompts
-  end
+  -- Scan directory for .md files (recursive). Use file_utils.scan_directory which supports recursion.
+  local md_files = file_utils.scan_directory(dir, { patterns = "*.md" })
 
-  while true do
-    local name, type = vim.uv.fs_scandir_next(handle)
-    if not name then
-      break
-    end
-
-    -- Only process .md files
-    if type == "file" and name:match("%.md$") then
-      local path = vim.fs.joinpath(dir, name)
-      local ok, prompt = pcall(M.parse_file, path, context)
-
-      if ok and prompt then
-        prompt.name = prompt.name or vim.fn.fnamemodify(path, ":t:r")
-        table.insert(prompts, prompt)
-      end
+  for _, path in ipairs(md_files) do
+    local ok, prompt = pcall(M.parse_file, path, context)
+    if ok and prompt then
+      prompt.name = prompt.name or vim.fn.fnamemodify(path, ":t:r")
+      table.insert(prompts, prompt)
     end
   end
 
